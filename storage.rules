@@ -1,15 +1,48 @@
 rules_version = '2';
-service firebase.storage {
-  match /b/{bucket}/o {
-    function signedIn() { return request.auth != null; }
-    function hasProfile() { return signedIn() && firestore.exists(/databases/(default)/documents/users/$(request.auth.uid)); }
-    function role() { return firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role; }
-    function canRead() { return hasProfile() && role() in ['admin','manager','viewer']; }
-    function canWrite() { return hasProfile() && role() in ['admin','manager']; }
-    match /project-files/{allPaths=**} {
-      allow read: if canRead();
-      allow create, update: if canWrite() && request.resource.size < 25 * 1024 * 1024;
-      allow delete: if canWrite();
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return signedIn()
+        && exists(
+          /databases/$(database)/documents/users/$(request.auth.uid)
+        )
+        && get(
+          /databases/$(database)/documents/users/$(request.auth.uid)
+        ).data.role == "admin";
+    }
+
+    match /users/{userId} {
+      allow read: if signedIn()
+        && (request.auth.uid == userId || isAdmin());
+      allow write: if isAdmin();
+    }
+
+    match /{collection}/{recordId} {
+      allow read: if signedIn()
+        && collection in [
+          "employees",
+          "attrition",
+          "allocations",
+          "attendance",
+          "projects",
+          "auditLogs"
+        ];
+
+      allow write: if isAdmin()
+        && collection in [
+          "employees",
+          "attrition",
+          "allocations",
+          "attendance",
+          "projects",
+          "auditLogs"
+        ];
     }
   }
 }
