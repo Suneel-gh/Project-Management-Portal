@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#203a5f"><title>ProjectOps | Operations Portal</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="loginScreen" class="login-shell"><form id="loginForm" class="login-card"><div class="brand-mark">PO</div><p class="eyebrow">OPERATIONS WORKSPACE</p><h1>ProjectOps</h1><p class="muted">Sign in to manage people, projects and trackers.</p><label>Email address<input id="loginEmail" type="email" autocomplete="username" required></label><label>Password<input id="loginPassword" type="password" autocomplete="current-password" required></label><button class="btn primary full" type="submit">Sign in</button><p id="loginMessage" class="message" role="status"></p><p class="tiny muted">Access is limited to users provisioned in your Firebase project.</p></form></div>
+<div id="appShell" class="app-shell hidden">
+<aside class="sidebar"><div class="brand"><div class="brand-mark">PO</div><div><strong>ProjectOps</strong><small>Operations workspace</small></div></div><p class="nav-label">WORKSPACE</p><nav id="nav"><button class="nav-btn active" data-page="overview">▦ <span>Overview</span></button><button class="nav-btn" data-page="employees">♙ <span>Employee master</span></button><button class="nav-btn" data-page="attrition">↗ <span>Attrition tracker</span></button><button class="nav-btn" data-page="allocation">◫ <span>Billable &amp; buffer</span></button><button class="nav-btn" data-page="attendance">◷ <span>WFH / WFO status</span></button><button class="nav-btn" data-page="documents">▤ <span>Project files</span></button></nav><div class="sidebar-foot"><strong>One source of truth</strong><p>Keep employee records and operational trackers connected in one workspace.</p><p id="roleLabel" class="role-label"></p></div></aside>
+<main><header class="topbar"><div><span class="muted tiny">WORKSPACE / </span><strong id="breadcrumb">Overview</strong></div><div class="user-actions"><span id="userEmail" class="user-email"></span><button id="logoutBtn" class="btn">Sign out</button></div></header><section class="page-head"><div><h1 id="pageTitle">Operations overview</h1><p id="pageSubtitle" class="muted">A shared view of people, allocation and working model.</p></div><div id="pageActions" class="actions"></div></section><div id="content"><div class="loading">Connecting to Firebase…</div></div><p class="footer-note">ProjectOps · Authorized operational use only · <span id="syncStatus">Connecting…</span></p></main>
+</div>
+<div id="modalRoot"></div><div id="toast" class="toast hidden" role="status"></div><input id="csvFileInput" type="file" accept=".csv,text/csv" hidden>
+<script type="module" src="app.js"></script>
+</body></html>
