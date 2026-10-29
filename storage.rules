@@ -1,0 +1,15 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    function signedIn() { return request.auth != null; }
+    function hasProfile() { return signedIn() && firestore.exists(/databases/(default)/documents/users/$(request.auth.uid)); }
+    function role() { return firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role; }
+    function canRead() { return hasProfile() && role() in ['admin','manager','viewer']; }
+    function canWrite() { return hasProfile() && role() in ['admin','manager']; }
+    match /project-files/{allPaths=**} {
+      allow read: if canRead();
+      allow create, update: if canWrite() && request.resource.size < 25 * 1024 * 1024;
+      allow delete: if canWrite();
+    }
+  }
+}

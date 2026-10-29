@@ -1,0 +1,23 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function profile() { return get(/databases/$(database)/documents/users/$(request.auth.uid)).data; }
+    function hasProfile() { return signedIn() && exists(/databases/$(database)/documents/users/$(request.auth.uid)); }
+    function canRead() { return hasProfile() && profile().role in ['admin', 'manager', 'viewer']; }
+    function canWrite() { return hasProfile() && profile().role in ['admin', 'manager']; }
+    function isAdmin() { return hasProfile() && profile().role == 'admin'; }
+
+    match /users/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+      // Only admins can provision/change roles. Create the first admin profile from Firebase Console.
+      allow create, update, delete: if isAdmin();
+    }
+    match /{collectionName}/{documentId} {
+      allow read: if collectionName in ['employees','attrition','allocation','attendance','documents'] && canRead();
+      allow create: if collectionName in ['employees','attrition','allocation','attendance','documents'] && canWrite();
+      allow update: if collectionName in ['employees','attrition','allocation','attendance','documents'] && canWrite();
+      allow delete: if collectionName in ['employees','attrition','allocation','attendance','documents'] && canWrite();
+    }
+  }
+}
